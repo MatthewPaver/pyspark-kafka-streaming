@@ -9,6 +9,22 @@
 
 ---
 
+## Status
+
+`Technical example`
+
+This repository is a compact streaming-data demo rather than a packaged platform. It is useful as a quick proof of PySpark Structured Streaming, Kafka producer/consumer wiring, and local troubleshooting.
+
+## What It Demonstrates
+
+- Spark DataFrame basics
+- Kafka-backed structured streaming
+- test event production with JSON messages
+- Spark package configuration for the Kafka connector
+- local debugging of common Spark/Kafka setup issues
+
+---
+
 ## Project Structure
 
 ```
