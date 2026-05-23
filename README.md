@@ -15,6 +15,16 @@
 
 This repository is a compact streaming-data demo rather than a packaged platform. It is useful as a quick proof of PySpark Structured Streaming, Kafka producer/consumer wiring, and local troubleshooting.
 
+## Reviewer Pack
+
+| Item | Detail |
+|:---|:---|
+| Run locally | `make dataframe` for the Spark DataFrame demo, or follow the Kafka steps below |
+| Check | `make check` compiles the Python examples without needing Spark or Kafka running |
+| Demo data | The producer sends five JSON events into `test-topic` |
+| Architecture | Kafka producer -> Kafka topic -> Spark Structured Streaming consumer -> console sink |
+| Limitations | Local technical example; no containerised broker setup, schema registry, storage sink, or production deployment |
+
 ## What It Demonstrates
 
 - Spark DataFrame basics
@@ -50,6 +60,12 @@ requirements.txt           # Python dependencies
 pip install -r requirements.txt
 ```
 
+Check the example scripts:
+
+```bash
+make check
+```
+
 ### Environment Variables (Linux/macOS)
 
 ```bash
@@ -65,7 +81,7 @@ export PATH=$PATH:$SPARK_HOME/bin:$KAFKA_HOME/bin
 ### 1. Basic DataFrame
 
 ```bash
-spark-submit examples/basic_dataframe.py
+make dataframe
 ```
 
 Output:
