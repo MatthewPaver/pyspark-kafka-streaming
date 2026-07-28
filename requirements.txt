@@ -1,2 +1,2 @@
-pyspark>=3.5.0
-kafka-python>=2.0.0
+pyspark==3.5.8
+kafka-python==3.0.9
