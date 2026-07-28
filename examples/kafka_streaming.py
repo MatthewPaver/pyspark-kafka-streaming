@@ -6,14 +6,16 @@ and writes the output to the console.
 Prerequisites:
     - Kafka broker running on localhost:9092
     - Topic 'test-topic' created
-    - Run with: spark-submit --packages org.apache.spark:spark-sql-kafka-0-10_2.12:3.5.1 kafka_streaming.py
+    - Run with: make stream
 """
+
+import os
 
 from pyspark.sql import SparkSession
 
 
-KAFKA_BOOTSTRAP_SERVERS = "localhost:9092"
-KAFKA_TOPIC = "test-topic"
+KAFKA_BOOTSTRAP_SERVERS = os.getenv("KAFKA_BOOTSTRAP_SERVERS", "localhost:9092")
+KAFKA_TOPIC = os.getenv("KAFKA_TOPIC", "test-topic")
 
 
 def main() -> None:

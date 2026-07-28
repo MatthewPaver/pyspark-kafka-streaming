@@ -19,11 +19,11 @@ This repository is a compact streaming-data demo rather than a packaged platform
 
 | Item | Detail |
 |:---|:---|
-| Run locally | `make dataframe` for the Spark DataFrame demo, or follow the Kafka steps below |
-| Check | `make check` compiles the Python examples without needing Spark or Kafka running |
+| Run locally | `make dataframe` for Spark basics or `make demo` for a Kafka round trip |
+| Check | `make check` compiles the examples and imports the pinned runtime dependencies |
 | Demo data | The producer sends five JSON events into `test-topic` |
 | Architecture | Kafka producer -> Kafka topic -> Spark Structured Streaming consumer -> console sink |
-| Limitations | Local technical example; no containerised broker setup, schema registry, storage sink, or production deployment |
+| Limitations | Local technical example; no schema registry, durable storage sink, or production deployment |
 
 ## What It Demonstrates
 
@@ -52,6 +52,7 @@ requirements.txt           # Python dependencies
 ### Prerequisites
 
 - Java 8, 11, or 17
+- Docker with Compose for the Kafka demo
 - [Apache Spark 3.5+](https://spark.apache.org/downloads.html)
 - [Apache Kafka](https://kafka.apache.org/downloads)
 - Python 3.x
@@ -97,30 +98,26 @@ Output:
 
 ### 2. Kafka Streaming
 
-Start Kafka infrastructure:
+Start the pinned Apache Kafka 4.3.1 broker in KRaft mode, create the topic and
+verify a producer/consumer round trip:
 
 ```bash
-# Terminal 1: Start Zookeeper
-zookeeper-server-start.sh $KAFKA_HOME/config/zookeeper.properties
-
-# Terminal 2: Start Kafka
-kafka-server-start.sh $KAFKA_HOME/config/server.properties
-
-# Terminal 3: Create topic
-kafka-topics.sh --create --topic test-topic --bootstrap-server localhost:9092 --partitions 1 --replication-factor 1
+make demo
 ```
 
-Run the consumer and producer:
+Then run the Spark consumer and sample producer in two terminals:
 
 ```bash
-# Terminal 4: Start streaming consumer
-spark-submit --packages org.apache.spark:spark-sql-kafka-0-10_2.12:3.5.1 examples/kafka_streaming.py
+# Terminal 1
+make stream
 
-# Terminal 5: Send test messages
-python examples/kafka_producer.py
+# Terminal 2
+make produce
 ```
 
 The consumer reads from `test-topic`, casts key/value to strings, and prints each batch to the console in append mode.
+
+Stop the local broker with `make stop`.
 
 ---
 
@@ -140,8 +137,8 @@ The producer sends JSON events (page views, clicks, purchases) with a 1-second d
 | Issue | Fix |
 |-------|-----|
 | `java.lang.ClassNotFoundException` | Check Java version: `java -version` (need 8, 11, or 17) |
-| Kafka connection refused | Ensure Zookeeper is running before Kafka, ports 2181/9092 are free |
-| Missing Kafka package | Include `--packages org.apache.spark:spark-sql-kafka-0-10_2.12:3.5.1` in spark-submit |
+| Kafka connection refused | Run `make broker` and confirm port 9092 is free |
+| Missing Kafka package | Use `make stream`, which pins the Spark 3.5.8 connector |
 | Topic not found | Create it first: `kafka-topics.sh --create --topic test-topic ...` |
 
 ---
