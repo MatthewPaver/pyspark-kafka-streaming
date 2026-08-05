@@ -25,6 +25,19 @@ This repository is a compact streaming-data demo rather than a packaged platform
 | Architecture | Kafka producer -> Kafka topic -> Spark Structured Streaming consumer -> console sink |
 | Limitations | Local technical example; no schema registry, durable storage sink, or production deployment |
 
+
+## Where this pattern shows up in real work
+
+These scripts are deliberately small, but the shape matches jobs that show up in ops and product backends:
+
+| Scenario | How the example maps |
+| --- | --- |
+| **Live booking / cover status** | Producer emits JSON status events; Structured Streaming reads the topic and prints the latest state (same idea as QuickSupply SSE, but on a Kafka bus). |
+| **Ops telemetry fan-in** | Many services publish small events; Spark reduces a windowed view for “what changed in the last N minutes”. |
+| **Backfill vs stream** | The DataFrame example is the batch twin of the stream — useful when you need the same transform offline for audit. |
+
+Non-goals: schema registry, exactly-once sinks, multi-tenant brokers. Use this to prove you can wire the path, then harden it in the real estate.
+
 ## What It Demonstrates
 
 - Spark DataFrame basics
