@@ -38,6 +38,8 @@ htmlcov/
 # Logs
 *.log
 logs/
+data/output/
+data/checkpoints/
 
 # Jupyter
 .ipynb_checkpoints/

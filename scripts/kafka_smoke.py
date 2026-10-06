@@ -5,6 +5,7 @@ from __future__ import annotations
 import json
 import os
 import time
+from datetime import datetime, timezone
 
 from kafka import KafkaConsumer, KafkaProducer
 
@@ -19,7 +20,17 @@ def main() -> None:
         bootstrap_servers=BOOTSTRAP,
         value_serializer=lambda value: json.dumps(value).encode("utf-8"),
     )
-    producer.send(TOPIC, {"event": "smoke", "id": marker}).get(timeout=10)
+    producer.send(
+        TOPIC,
+        {
+            "event_id": marker,
+            "event": "smoke",
+            "user": "smoke-test",
+            "event_time": datetime.now(timezone.utc).isoformat(),
+            "source": "kafka-smoke",
+            "schema_version": "1.0",
+        },
+    ).get(timeout=10)
     producer.close()
 
     consumer = KafkaConsumer(
@@ -31,7 +42,7 @@ def main() -> None:
         value_deserializer=lambda value: json.loads(value.decode("utf-8")),
     )
     try:
-        if not any(message.value.get("id") == marker for message in consumer):
+        if not any(message.value.get("event_id") == marker for message in consumer):
             raise RuntimeError("Kafka smoke event was not observed")
     finally:
         consumer.close()

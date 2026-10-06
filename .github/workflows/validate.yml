@@ -2,19 +2,40 @@ name: Validate
 
 on:
   push:
+    branches: [main]
   pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pyspark-kafka-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   check:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v6
       - uses: actions/setup-python@v6
         with:
           python-version: "3.11"
           cache: pip
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
       - name: Install pinned dependencies
-        run: python -m pip install -r requirements.txt
+        run: make install
       - run: make check
+      - name: Test schema, validation, quarantine and lineage
+        run: make test
       - name: Run the DataFrame example
         run: make dataframe
+      - name: Real Kafka through Spark to durable and quarantine sinks
+        run: make integration
+      - name: Stop the local test broker
+        if: always()
+        run: make stop
