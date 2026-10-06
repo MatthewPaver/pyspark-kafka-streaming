@@ -1,6 +1,6 @@
 # PySpark Kafka Streaming
 
-[![Python 3.x](https://img.shields.io/badge/Python-3.x-3670A0?style=flat-square&logo=python&logoColor=ffdd54)](https://python.org)
+[![Python 3.11](https://img.shields.io/badge/Python-3.11-3670A0?style=flat-square&logo=python&logoColor=ffdd54)](https://python.org)
 [![Spark 3.5](https://img.shields.io/badge/Spark-3.5-E25A1C?style=flat-square&logo=apachespark&logoColor=white)](https://spark.apache.org/)
 [![Kafka](https://img.shields.io/badge/Kafka-231F20?style=flat-square&logo=apachekafka&logoColor=white)](https://kafka.apache.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
@@ -35,7 +35,7 @@ These scripts are deliberately small, but the shape matches jobs that show up in
 
 | Scenario | How the example maps |
 | --- | --- |
-| **Live booking / cover status** | Producer emits JSON status events; Structured Streaming reads the topic and prints the latest state (same idea as QuickSupply SSE, but on a Kafka bus). |
+| **Live booking / cover status** | Producer emits JSON status events; Structured Streaming reads the topic and prints the latest state. |
 | **Ops telemetry fan-in** | Many services publish small events; Spark reduces a windowed view for “what changed in the last N minutes”. |
 | **Backfill vs stream** | The DataFrame example is the batch twin of the stream — useful when you need the same transform offline for audit. |
 
@@ -148,7 +148,7 @@ After `make install`, run `make integration`. It starts the local Compose broker
 
 The normal path removes the fixture topic and temporary files; `make stop` stops the Compose broker. If forcibly terminated, the printed `spark-integration-*` topic can remain until that local broker is stopped/recreated. No existing topic or `data/output` is deleted. CI runs this target and always stops its broker. Unix/macOS/Linux are supported by the deadline helper.
 
-**Local verification status (2026-09-05):** offline Spark tests and the DataFrame example ran; Docker daemon inspection timed out after 10 seconds, so the real broker/connector integration was **not run locally**. CI configuration is supplied but no new remote CI run or deployment is claimed. This small check does not yet prove late-event policy, restart recovery, or production throughput.
+**Verified in CI:** the [Validate workflow](https://github.com/MatthewPaver/pyspark-kafka-streaming/actions/workflows/validate.yml) runs on every push to `main`. On Ubuntu with Python 3.11 and Java 17, it runs `make check`, `make test` and `make dataframe`, then `make integration` against a real Kafka KRaft broker. That last step sends one valid and one malformed event through Spark and asserts the Parquet and quarantine outputs. It first passed on 2026-10-06. It does not test late-event policy, restart recovery or production throughput.
 
 ---
 
@@ -167,7 +167,7 @@ The producer sends JSON events (page views, clicks, purchases) with a 1-second d
 
 | Issue | Fix |
 |-------|-----|
-| `java.lang.ClassNotFoundException` | Check Java version: `java -version` (need 8, 11, or 17) |
+| `java.lang.ClassNotFoundException` | Check Java version: `java -version` (Java 17 is the tested version) |
 | Kafka connection refused | Run `make broker` and confirm port 9092 is free |
 | Missing Kafka package | Use `make stream`, which pins the Spark 3.5.8 connector |
 | Topic not found | Create it first: `kafka-topics.sh --create --topic test-topic ...` |
